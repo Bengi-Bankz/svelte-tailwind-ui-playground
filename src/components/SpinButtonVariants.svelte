@@ -1,35 +1,102 @@
 <script>
     export let option = "option-1";
+    export let isPortrait = true;
 
-    const buttons = [
-        { type: "square", label: "SPIN", id: "option-1" },
-        { type: "square", label: "SPIN", id: "option-2" },
-        { type: "circle", label: "SPIN", id: "option-3" },
-        { type: "circle", label: "SPIN", id: "option-4" },
-        { type: "rect", label: "SPIN", id: "option-5" },
-    ];
+    const styles = {
+        "option-1": {
+            shape: "square",
+            arrows: "left-right",
+            class: "bg-gradient-to-br from-yellow-400 to-red-600 border-yellow-300",
+        },
+        "option-2": {
+            shape: "square",
+            arrows: "up-down",
+            class: "bg-gradient-to-br from-green-400 to-emerald-700 border-green-200",
+        },
+        "option-3": {
+            shape: "circle",
+            arrows: "left-right",
+            class: "bg-gradient-to-br from-purple-600 to-pink-400 border-pink-200",
+        },
+        "option-4": {
+            shape: "circle",
+            arrows: "up-down",
+            class: "bg-gradient-to-br from-blue-600 to-indigo-400 border-indigo-300",
+        },
+        "option-5": {
+            shape: "rect",
+            arrows: "left-right",
+            class: "bg-gradient-to-r from-cyan-600 to-blue-400 border-cyan-300",
+        },
+    };
+
+    const btn = styles[option];
+
+    // Dynamic size logic
+    const mainSize = isPortrait
+        ? {
+              square: "w-16 h-16 text-sm",
+              circle: "w-16 h-16 text-sm",
+              rect: "w-28 h-10 text-xs",
+          }
+        : {
+              square: "w-24 h-24 text-lg",
+              circle: "w-24 h-24 text-lg",
+              rect: "w-44 h-14 text-lg",
+          };
 </script>
 
-{#each buttons as btn (btn.id)}
-    {#if btn.id === option}
-        {#if btn.type === "square"}
-            <div
-                class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-red-600 border-4 border-yellow-300 shadow-[0_0_12px_rgba(255,0,0,0.5)] text-white font-bold text-md flex items-center justify-center rounded-md"
+{#if btn}
+    <div
+        class={`flex items-center justify-center gap-2 p-2 max-w-full max-h-full ${
+            btn.arrows === "up-down" ? "flex-col" : ""
+        }`}
+    >
+        {#if btn.arrows === "left-right"}
+            <button
+                class="text-white bg-gray-700 w-8 h-8 rounded-full hover:bg-red-500 shrink-0"
+                aria-label="decrease"
             >
-                {btn.label}
-            </div>
-        {:else if btn.type === "circle"}
-            <div
-                class="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 border-4 border-white shadow-[0_0_12px_rgba(255,255,255,0.3)] text-white font-bold text-md flex items-center justify-center rounded-full"
-            >
-                {btn.label}
-            </div>
-        {:else if btn.type === "rect"}
-            <div
-                class="w-40 h-14 bg-gradient-to-r from-blue-600 to-cyan-400 border-4 border-white shadow-[0_0_12px_rgba(0,255,255,0.4)] text-white font-bold text-lg flex items-center justify-center rounded-xl"
-            >
-                {btn.label}
-            </div>
+                ⬅
+            </button>
         {/if}
-    {/if}
-{/each}
+        {#if btn.arrows === "up-down"}
+            <button
+                class="text-white bg-gray-700 w-8 h-8 rounded-full hover:bg-red-500 shrink-0"
+                aria-label="increase"
+            >
+                ⬆
+            </button>
+        {/if}
+
+        <!-- Main SPIN button -->
+        <div
+            class={`flex items-center justify-center font-bold text-white border-4 ${btn.class} ${mainSize[btn.shape]} ${
+                btn.shape === "circle"
+                    ? "rounded-full"
+                    : btn.shape === "rect"
+                      ? "rounded-xl"
+                      : "rounded-md"
+            }`}
+        >
+            SPIN
+        </div>
+
+        {#if btn.arrows === "left-right"}
+            <button
+                class="text-white bg-gray-700 w-8 h-8 rounded-full hover:bg-green-500 shrink-0"
+                aria-label="increase"
+            >
+                ➡
+            </button>
+        {/if}
+        {#if btn.arrows === "up-down"}
+            <button
+                class="text-white bg-gray-700 w-8 h-8 rounded-full hover:bg-green-500 shrink-0"
+                aria-label="decrease"
+            >
+                ⬇
+            </button>
+        {/if}
+    </div>
+{/if}

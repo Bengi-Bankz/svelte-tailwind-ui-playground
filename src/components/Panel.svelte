@@ -7,8 +7,6 @@
   let selectedMath = "";
 
   const getPlacementStyle = (placement, isPortrait = true) => {
-    const base = isPortrait ? { w: 200, h: 300 } : { w: 300, h: 200 };
-
     const pos = {
       "top-left": "top-0 left-0",
       "top-middle": "top-0 left-1/2 -translate-x-1/2",
@@ -20,7 +18,6 @@
       "bottom-middle": "bottom-0 left-1/2 -translate-x-1/2",
       "bottom-right": "bottom-0 right-0",
     };
-
     return `absolute ${pos[placement] || ""}`;
   };
 </script>
@@ -30,7 +27,6 @@
 
   <!-- Dropdowns -->
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-    <!-- Element Dropdown -->
     <div>
       <label class="block text-sm font-medium mb-1 text-blue-400">Element</label
       >
@@ -43,7 +39,6 @@
       </select>
     </div>
 
-    <!-- Option Dropdown -->
     <div>
       <label class="block text-sm font-medium mb-1 text-green-400"
         >Options</label
@@ -53,15 +48,12 @@
         class="w-full p-2 rounded bg-green-600 text-white border border-green-300"
       >
         <option value="" disabled selected>Select Option</option>
-        <option value="option-1">Option 1</option>
-        <option value="option-2">Option 2</option>
-        <option value="option-3">Option 3</option>
-        <option value="option-4">Option 4</option>
-        <option value="option-5">Option 5</option>
+        {#each Array(5) as _, i}
+          <option value={`option-${i + 1}`}>Option {i + 1}</option>
+        {/each}
       </select>
     </div>
 
-    <!-- Placement -->
     <div>
       <label class="block text-sm font-medium mb-1 text-yellow-400"
         >Placement</label
@@ -83,14 +75,12 @@
       </select>
     </div>
 
-    <!-- Math -->
     <div>
       <label class="block text-sm font-medium mb-1 text-red-400">Math</label>
       <select
         bind:value={selectedMath}
         class="w-full p-2 rounded bg-red-600 text-white border border-red-300"
       >
-        <option value="" disabled selected>Select Math Option</option>
         {#each Array(10) as _, i}
           <option value={`math-${i + 1}`}>Math Option {i + 1}</option>
         {/each}
@@ -98,44 +88,36 @@
     </div>
   </div>
 
-  <!-- Dual Preview -->
-  <div class="flex flex-col md:flex-row items-center justify-center gap-6">
-    <!-- Portrait -->
+  <!-- Preview Boxes -->
+  <div class="flex flex-col md:flex-row items-center justify-center gap-16">
+    <!-- Landscape (scaled larger) -->
     <div
-      class="relative bg-gray-800 border-2 border-white rounded-lg w-[200px] h-[300px] overflow-hidden"
+      class="relative bg-gray-900 border-4 border-white rounded-xl w-[1008px] h-[560px] overflow-hidden"
     >
       {#if selectedElement === "bet-button" && selectedOption}
-        <div class={getPlacementStyle(selectedPlacement, true)}>
-          <SpinButtonVariants option={selectedOption} />
+        <div
+          class={`transform scale-[1.02] origin-center ${getPlacementStyle(selectedPlacement, false)}`}
+        >
+          {#key selectedOption}
+            <SpinButtonVariants option={selectedOption} isPortrait={false} />
+          {/key}
         </div>
       {/if}
-
-      <div
-        class="absolute bottom-0 w-full p-2 bg-black bg-opacity-60 text-xs text-center"
-      >
-        <div><b>Portrait</b></div>
-        <div><b>Element:</b> {selectedElement || "None"}</div>
-        <div><b>Placement:</b> {selectedPlacement || "None"}</div>
-      </div>
     </div>
 
-    <!-- Landscape -->
+    <!-- Portrait (iPhone 15 size) -->
     <div
-      class="relative bg-gray-800 border-2 border-white rounded-lg w-[300px] h-[200px] overflow-hidden"
+      class="relative bg-gray-900 border-4 border-white rounded-xl w-[280px] h-[560px] overflow-hidden"
     >
       {#if selectedElement === "bet-button" && selectedOption}
-        <div class={getPlacementStyle(selectedPlacement, false)}>
-          <SpinButtonVariants option={selectedOption} />
+        <div
+          class={`transform scale-[0.75] origin-center ${getPlacementStyle(selectedPlacement, true)}`}
+        >
+          {#key selectedOption}
+            <SpinButtonVariants option={selectedOption} isPortrait={true} />
+          {/key}
         </div>
       {/if}
-
-      <div
-        class="absolute bottom-0 w-full p-2 bg-black bg-opacity-60 text-xs text-center"
-      >
-        <div><b>Landscape</b></div>
-        <div><b>Element:</b> {selectedElement || "None"}</div>
-        <div><b>Placement:</b> {selectedPlacement || "None"}</div>
-      </div>
     </div>
   </div>
 </section>
