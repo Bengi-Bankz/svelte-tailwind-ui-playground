@@ -1,5 +1,3 @@
-// src/lib/shared/variantStyles.js
-
 export const variantStyles = {
     "option-1": {
         shape: "square",
@@ -23,18 +21,19 @@ export const variantStyles = {
     },
 };
 
+// Instead of setting width/height, return just sizing logic like font size
 export function sizeByShape(shape, isPortrait) {
     const sizes = isPortrait
         ? {
-            square: "w-16 h-16 text-sm",
-            circle: "w-16 h-16 text-sm",
-            rect: "w-28 h-10 text-xs",
+            square: "text-sm",
+            circle: "text-sm",
+            rect: "text-xs",
         }
         : {
-            square: "w-24 h-24 text-lg",
-            circle: "w-24 h-24 text-lg",
-            rect: "w-44 h-14 text-lg",
+            square: "text-lg",
+            circle: "text-lg",
+            rect: "text-lg",
         };
 
-    return sizes[shape] || "w-20 h-20";
+    return sizes[shape] || "text-base";
 }

@@ -72,6 +72,25 @@
     placedElements.set({ mobile: [], desktop: [] });
     selectedElementData.set(null);
   }
+
+  function updateElement(id, view, updates) {
+    const current = get(placedElements);
+    const viewElements = current[view];
+    const elementIndex = viewElements.findIndex((el) => el.id === id);
+
+    if (elementIndex !== -1) {
+      viewElements[elementIndex] = {
+        ...viewElements[elementIndex],
+        ...updates,
+      };
+      placedElements.set({ ...current });
+
+      // Update selected element data if it's the one being modified
+      if ($selectedElementData && $selectedElementData.id === id) {
+        selectedElementData.set(viewElements[elementIndex]);
+      }
+    }
+  }
 </script>
 
 <div class="flex flex-col items-center w-full">
@@ -130,12 +149,16 @@
           y={el.y}
           w={el.w}
           h={el.h}
+          minWidth={el.type === "Balance" ? 255.45 : 40}
           onClick={() => selectedElementData.set(el)}
+          onUpdate={(updates) => updateElement(el.id, "mobile", updates)}
         >
           <svelte:component
             this={componentMap[el.type]}
             option={el.option}
             isPortrait={true}
+            w={el.w}
+            h={el.h}
           />
         </DraggableWrapper>
       {/each}
@@ -153,12 +176,16 @@
           y={el.y}
           w={el.w}
           h={el.h}
+          minWidth={el.type === "Balance" ? 255.45 : 40}
           onClick={() => selectedElementData.set(el)}
+          onUpdate={(updates) => updateElement(el.id, "desktop", updates)}
         >
           <svelte:component
             this={componentMap[el.type]}
             option={el.option}
             isPortrait={false}
+            w={el.w}
+            h={el.h}
           />
         </DraggableWrapper>
       {/each}
