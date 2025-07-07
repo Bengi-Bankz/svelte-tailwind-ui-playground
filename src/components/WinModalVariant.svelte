@@ -1,6 +1,8 @@
 <script>
     export let option = "option-1";
     export let isPortrait = true;
+    export let w = 120;
+    export let h = 120;
 
     const styles = {
         "option-1": "bg-yellow-500/90 border-yellow-300 text-black",
@@ -10,13 +12,15 @@
         "option-5": "bg-cyan-500/90 border-cyan-300 text-black",
     };
 
-    const modalSize = isPortrait
-        ? "w-[220px] h-[100px]"
-        : "w-[400px] h-[120px]";
+    // Responsive sizing based on component dimensions
+    $: fontSize = Math.max(12, Math.min(28, h * 0.2));
+    $: borderWidth = Math.max(2, Math.min(6, Math.min(w * 0.01, h * 0.02)));
+    $: borderRadius = Math.max(6, Math.min(16, Math.min(w * 0.04, h * 0.08)));
 </script>
 
 <div
-    class={`rounded-lg border-4 shadow-xl ${styles[option]} ${modalSize} flex items-center justify-center font-extrabold text-xl`}
+    class={`shadow-xl ${styles[option]} flex items-center justify-center font-extrabold border-solid`}
+    style="width: {w}px; height: {h}px; font-size: {fontSize}px; border-width: {borderWidth}px; border-radius: {borderRadius}px;"
 >
     WIN: $123.45
 </div>
