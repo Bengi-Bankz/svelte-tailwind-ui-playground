@@ -29,7 +29,7 @@
         if (isDragging) {
             const newX = e.clientX - offset.x;
             const newY = e.clientY - offset.y;
-            
+
             // Constrain within container bounds
             x = Math.max(0, Math.min(containerWidth - w, newX));
             y = Math.max(0, Math.min(containerHeight - h, newY));
@@ -37,7 +37,7 @@
         if (isResizing) {
             const newWidth = Math.max(minWidth, e.clientX - x);
             const newHeight = Math.max(minHeight, e.clientY - y);
-            
+
             // Constrain size within container bounds
             w = Math.min(containerWidth - x, newWidth);
             h = Math.min(containerHeight - y, newHeight);
