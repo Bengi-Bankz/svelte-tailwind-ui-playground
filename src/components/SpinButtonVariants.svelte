@@ -5,34 +5,28 @@
     const styles = {
         "option-1": {
             shape: "square",
-            arrows: "left-right",
             class: "bg-gradient-to-br from-yellow-400 to-red-600 border-yellow-300",
         },
         "option-2": {
             shape: "square",
-            arrows: "up-down",
             class: "bg-gradient-to-br from-green-400 to-emerald-700 border-green-200",
         },
         "option-3": {
             shape: "circle",
-            arrows: "left-right",
             class: "bg-gradient-to-br from-purple-600 to-pink-400 border-pink-200",
         },
         "option-4": {
             shape: "circle",
-            arrows: "up-down",
             class: "bg-gradient-to-br from-blue-600 to-indigo-400 border-indigo-300",
         },
         "option-5": {
             shape: "rect",
-            arrows: "left-right",
             class: "bg-gradient-to-r from-cyan-600 to-blue-400 border-cyan-300",
         },
     };
 
     const btn = styles[option];
 
-    // Dynamic size logic
     const mainSize = isPortrait
         ? {
               square: "w-16 h-16 text-sm",
@@ -48,28 +42,17 @@
 
 {#if btn}
     <div
-        class={`flex items-center justify-center gap-2 p-2 max-w-full max-h-full ${
-            btn.arrows === "up-down" ? "flex-col" : ""
-        }`}
+        class="flex items-center justify-center gap-2 p-2 max-w-full max-h-full"
     >
-        {#if btn.arrows === "left-right"}
-            <button
-                class="text-white bg-gray-700 w-8 h-8 rounded-full hover:bg-red-500 shrink-0"
-                aria-label="decrease"
-            >
-                ⬅
-            </button>
-        {/if}
-        {#if btn.arrows === "up-down"}
-            <button
-                class="text-white bg-gray-700 w-8 h-8 rounded-full hover:bg-red-500 shrink-0"
-                aria-label="increase"
-            >
-                ⬆
-            </button>
-        {/if}
+        <!-- Minus Button -->
+        <button
+            class="text-white bg-gray-700 w-10 h-10 rounded-full hover:bg-red-500 shrink-0 text-xl leading-none"
+            aria-label="decrease"
+        >
+            −
+        </button>
 
-        <!-- Main SPIN button -->
+        <!-- SPIN Button -->
         <div
             class={`flex items-center justify-center font-bold text-white border-4 ${btn.class} ${mainSize[btn.shape]} ${
                 btn.shape === "circle"
@@ -82,21 +65,28 @@
             SPIN
         </div>
 
-        {#if btn.arrows === "left-right"}
-            <button
-                class="text-white bg-gray-700 w-8 h-8 rounded-full hover:bg-green-500 shrink-0"
-                aria-label="increase"
-            >
-                ➡
-            </button>
-        {/if}
-        {#if btn.arrows === "up-down"}
-            <button
-                class="text-white bg-gray-700 w-8 h-8 rounded-full hover:bg-green-500 shrink-0"
-                aria-label="decrease"
-            >
-                ⬇
-            </button>
-        {/if}
+        <!-- Plus Button -->
+        <button
+            class="text-white bg-gray-700 w-10 h-10 rounded-full hover:bg-green-500 shrink-0 text-xl leading-none"
+            aria-label="increase"
+        >
+            +
+        </button>
+
+        <!-- Auto Button -->
+        <button
+            class="text-yellow-200 bg-black w-10 h-10 rounded-full hover:bg-yellow-700 shrink-0 text-sm leading-none"
+            aria-label="auto"
+        >
+            ♻
+        </button>
+
+        <!-- Bonus Buy Button -->
+        <button
+            class="text-pink-300 bg-black w-10 h-10 rounded-full hover:bg-pink-700 shrink-0 text-sm leading-none"
+            aria-label="bonus"
+        >
+            ★
+        </button>
     </div>
 {/if}

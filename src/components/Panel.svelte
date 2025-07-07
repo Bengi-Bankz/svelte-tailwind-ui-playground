@@ -1,123 +1,195 @@
 <script>
+  import { placedElements } from "../lib/shared/placedElements";
+  import { get, writable } from "svelte/store";
+
+  import FrameVariant from "./FrameVariant.svelte";
+  import MenuVariant from "./MenuVariant.svelte";
+  import BalanceBetBlock from "./BalanceBetBlock.svelte";
   import SpinButtonVariants from "./SpinButtonVariants.svelte";
+  import WinModalVariant from "./WinModalVariant.svelte";
+  import DraggableWrapper from "./ui/DraggableWrapper.svelte";
 
-  let selectedElement = "";
-  let selectedOption = "";
-  let selectedPlacement = "";
-  let selectedMath = "";
+  const elementTypes = ["Balance", "Menu", "Frame", "Spin", "WinModal"];
 
-  const getPlacementStyle = (placement, isPortrait = true) => {
-    const pos = {
-      "top-left": "top-0 left-0",
-      "top-middle": "top-0 left-1/2 -translate-x-1/2",
-      "top-right": "top-0 right-0",
-      "middle-left": "top-1/2 left-0 -translate-y-1/2",
-      "middle-middle": "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-      "middle-right": "top-1/2 right-0 -translate-y-1/2",
-      "bottom-left": "bottom-0 left-0",
-      "bottom-middle": "bottom-0 left-1/2 -translate-x-1/2",
-      "bottom-right": "bottom-0 right-0",
-    };
-    return `absolute ${pos[placement] || ""}`;
+  const variantOptions = {
+    Balance: ["option-1", "option-2", "option-3", "option-4", "option-5"],
+    Menu: ["option-1", "option-2", "option-3", "option-4", "option-5"],
+    Frame: ["option-1", "option-2", "option-3", "option-4", "option-5"],
+    Spin: ["option-1", "option-2", "option-3", "option-4", "option-5"],
+    WinModal: ["option-1", "option-2", "option-3", "option-4", "option-5"],
   };
+
+  let selectedElement = "Balance";
+  let selectedOption = variantOptions["Balance"][0];
+  let selectedView = "mobile";
+
+  $: selectedOption = variantOptions[selectedElement]?.[0] ?? "";
+
+  const selectedElementData = writable(null);
+
+  const componentMap = {
+    Balance: BalanceBetBlock,
+    Menu: MenuVariant,
+    Frame: FrameVariant,
+    Spin: SpinButtonVariants,
+    WinModal: WinModalVariant,
+  };
+
+  function handleAdd() {
+    const current = get(placedElements);
+    const view = current[selectedView];
+
+    if (!view.some((el) => el.type === selectedElement)) {
+      const newEl = {
+        id: `${selectedElement}-${Date.now()}`,
+        type: selectedElement,
+        option: selectedOption,
+        x: 100,
+        y: 100,
+        w: 120,
+        h: 120,
+      };
+      view.push(newEl);
+      placedElements.set({ ...current });
+      selectedElementData.set(newEl);
+    }
+  }
+
+  function exportSnapshot() {
+    const snapshot = get(placedElements);
+    const json = JSON.stringify(snapshot, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "layout-snapshot.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function handleReset() {
+    placedElements.set({ mobile: [], desktop: [] });
+    selectedElementData.set(null);
+  }
 </script>
 
-<section class="flex-1 p-4 text-white">
-  <h2 class="text-lg mb-4">Control Panel</h2>
+<div class="flex flex-col items-center w-full">
+  <!-- TOP BAR -->
+  <div
+    class="flex gap-2 bg-gray-900 w-full px-4 py-3 text-white items-center justify-center"
+  >
+    <select bind:value={selectedElement} class="text-black px-2 py-1 rounded">
+      {#each elementTypes as type}
+        <option value={type}>{type}</option>
+      {/each}
+    </select>
 
-  <!-- Dropdowns -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-    <div>
-      <label class="block text-sm font-medium mb-1 text-blue-400">Element</label
-      >
-      <select
-        bind:value={selectedElement}
-        class="w-full p-2 rounded bg-blue-600 text-white border border-blue-300"
-      >
-        <option value="" disabled selected>Select Element</option>
-        <option value="bet-button">Bet Button</option>
-      </select>
+    <select bind:value={selectedOption} class="text-black px-2 py-1 rounded">
+      {#each variantOptions[selectedElement] as opt}
+        <option value={opt}>{opt}</option>
+      {/each}
+    </select>
+
+    <select bind:value={selectedView} class="text-black px-2 py-1 rounded">
+      <option value="mobile">Mobile</option>
+      <option value="desktop">Desktop</option>
+    </select>
+
+    <button
+      on:click={handleAdd}
+      class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
+    >
+      Add
+    </button>
+    <button
+      on:click={handleReset}
+      class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+    >
+      Clear
+    </button>
+  </div>
+
+  <!-- SCALE NOTE -->
+  <div class="text-xs text-gray-400 mt-2 mb-4">
+    Preview scaled to <strong>65%</strong> — actual layout: 1280×720 desktop / 393×852
+    mobile
+  </div>
+
+  <!-- DISPLAY -->
+  <div class="flex justify-center gap-12 my-4">
+    <!-- MOBILE -->
+    <div
+      class="relative border-4 border-white w-[255.45px] h-[553.8px] bg-black text-white text-center"
+    >
+      <p class="absolute top-2 left-2 text-xs text-white/60">Mobile</p>
+      {#each $placedElements.mobile as el (el.id)}
+        <DraggableWrapper
+          id={el.id}
+          x={el.x}
+          y={el.y}
+          w={el.w}
+          h={el.h}
+          onClick={() => selectedElementData.set(el)}
+        >
+          <svelte:component
+            this={componentMap[el.type]}
+            option={el.option}
+            isPortrait={true}
+          />
+        </DraggableWrapper>
+      {/each}
     </div>
 
-    <div>
-      <label class="block text-sm font-medium mb-1 text-green-400"
-        >Options</label
-      >
-      <select
-        bind:value={selectedOption}
-        class="w-full p-2 rounded bg-green-600 text-white border border-green-300"
-      >
-        <option value="" disabled selected>Select Option</option>
-        {#each Array(5) as _, i}
-          <option value={`option-${i + 1}`}>Option {i + 1}</option>
-        {/each}
-      </select>
-    </div>
-
-    <div>
-      <label class="block text-sm font-medium mb-1 text-yellow-400"
-        >Placement</label
-      >
-      <select
-        bind:value={selectedPlacement}
-        class="w-full p-2 rounded bg-yellow-500 text-black border border-yellow-300"
-      >
-        <option value="" disabled selected>Select Placement</option>
-        <option value="top-left">Top Left</option>
-        <option value="top-middle">Top Middle</option>
-        <option value="top-right">Top Right</option>
-        <option value="middle-left">Middle Left</option>
-        <option value="middle-middle">Middle Center</option>
-        <option value="middle-right">Middle Right</option>
-        <option value="bottom-left">Bottom Left</option>
-        <option value="bottom-middle">Bottom Middle</option>
-        <option value="bottom-right">Bottom Right</option>
-      </select>
-    </div>
-
-    <div>
-      <label class="block text-sm font-medium mb-1 text-red-400">Math</label>
-      <select
-        bind:value={selectedMath}
-        class="w-full p-2 rounded bg-red-600 text-white border border-red-300"
-      >
-        {#each Array(10) as _, i}
-          <option value={`math-${i + 1}`}>Math Option {i + 1}</option>
-        {/each}
-      </select>
+    <!-- DESKTOP -->
+    <div
+      class="relative border-4 border-white w-[1248px] h-[702px] bg-black text-white text-center"
+    >
+      <p class="absolute top-2 left-2 text-xs text-white/60">Desktop</p>
+      {#each $placedElements.desktop as el (el.id)}
+        <DraggableWrapper
+          id={el.id}
+          x={el.x}
+          y={el.y}
+          w={el.w}
+          h={el.h}
+          onClick={() => selectedElementData.set(el)}
+        >
+          <svelte:component
+            this={componentMap[el.type]}
+            option={el.option}
+            isPortrait={false}
+          />
+        </DraggableWrapper>
+      {/each}
     </div>
   </div>
 
-  <!-- Preview Boxes -->
-  <div class="flex flex-col md:flex-row items-center justify-center gap-16">
-    <!-- Landscape (scaled larger) -->
-    <div
-      class="relative bg-gray-900 border-4 border-white rounded-xl w-[1008px] h-[560px] overflow-hidden"
-    >
-      {#if selectedElement === "bet-button" && selectedOption}
-        <div
-          class={`transform scale-[1.02] origin-center ${getPlacementStyle(selectedPlacement, false)}`}
-        >
-          {#key selectedOption}
-            <SpinButtonVariants option={selectedOption} isPortrait={false} />
-          {/key}
-        </div>
-      {/if}
-    </div>
+  <!-- SNAPSHOT -->
+  <button
+    on:click={exportSnapshot}
+    class="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 mt-2 rounded shadow"
+  >
+    📤 Export Snapshot
+  </button>
 
-    <!-- Portrait (iPhone 15 size) -->
-    <div
-      class="relative bg-gray-900 border-4 border-white rounded-xl w-[280px] h-[560px] overflow-hidden"
-    >
-      {#if selectedElement === "bet-button" && selectedOption}
-        <div
-          class={`transform scale-[0.75] origin-center ${getPlacementStyle(selectedPlacement, true)}`}
-        >
-          {#key selectedOption}
-            <SpinButtonVariants option={selectedOption} isPortrait={true} />
-          {/key}
-        </div>
-      {/if}
-    </div>
+  <!-- LOGS -->
+  <div
+    class="bg-black text-green-400 text-sm mt-6 w-5/6 p-4 border-t border-green-700 font-mono whitespace-pre overflow-auto max-h-[300px]"
+  >
+    Selected Element:
+    {#if $selectedElementData}
+      {JSON.stringify($selectedElementData, null, 2)}
+    {:else}
+      No element selected
+    {/if}
+
+    &#10;&#10;--- Mobile Elements ---&#10;
+    {#each $placedElements.mobile as el}
+      {JSON.stringify(el)}{/each}
+
+    &#10;--- Desktop Elements ---&#10;
+    {#each $placedElements.desktop as el}
+      {JSON.stringify(el)}{/each}
   </div>
-</section>
+</div>
