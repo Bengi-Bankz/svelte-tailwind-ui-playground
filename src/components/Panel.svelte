@@ -40,14 +40,26 @@
     const view = current[selectedView];
 
     if (!view.some((el) => el.type === selectedElement)) {
+      // Get container dimensions based on selected view
+      const containerWidth = selectedView === "mobile" ? 255.45 : 1248;
+      const containerHeight = selectedView === "mobile" ? 553.8 : 702;
+      
+      // Default dimensions
+      const defaultWidth = 120;
+      const defaultHeight = 120;
+      
+      // Ensure initial position is within bounds
+      const initialX = Math.min(100, containerWidth - defaultWidth);
+      const initialY = Math.min(100, containerHeight - defaultHeight);
+
       const newEl = {
         id: `${selectedElement}-${Date.now()}`,
         type: selectedElement,
         option: selectedOption,
-        x: 100,
-        y: 100,
-        w: 120,
-        h: 120,
+        x: initialX,
+        y: initialY,
+        w: defaultWidth,
+        h: defaultHeight,
       };
       view.push(newEl);
       placedElements.set({ ...current });
@@ -79,9 +91,28 @@
     const elementIndex = viewElements.findIndex((el) => el.id === id);
 
     if (elementIndex !== -1) {
+      // Get container dimensions based on view
+      const containerWidth = view === "mobile" ? 255.45 : 1248;
+      const containerHeight = view === "mobile" ? 553.8 : 702;
+      
+      // Apply constraints to updates
+      let constrainedUpdates = { ...updates };
+      
+      if (constrainedUpdates.x !== undefined || constrainedUpdates.w !== undefined) {
+        const newX = constrainedUpdates.x ?? viewElements[elementIndex].x;
+        const newW = constrainedUpdates.w ?? viewElements[elementIndex].w;
+        constrainedUpdates.x = Math.max(0, Math.min(containerWidth - newW, newX));
+      }
+      
+      if (constrainedUpdates.y !== undefined || constrainedUpdates.h !== undefined) {
+        const newY = constrainedUpdates.y ?? viewElements[elementIndex].y;
+        const newH = constrainedUpdates.h ?? viewElements[elementIndex].h;
+        constrainedUpdates.y = Math.max(0, Math.min(containerHeight - newH, newY));
+      }
+
       viewElements[elementIndex] = {
         ...viewElements[elementIndex],
-        ...updates,
+        ...constrainedUpdates,
       };
       placedElements.set({ ...current });
 
@@ -150,6 +181,8 @@
           w={el.w}
           h={el.h}
           minWidth={el.type === "Balance" ? 255.45 : 40}
+          containerWidth={255.45}
+          containerHeight={553.8}
           onClick={() => selectedElementData.set(el)}
           onUpdate={(updates) => updateElement(el.id, "mobile", updates)}
         >
@@ -177,6 +210,8 @@
           w={el.w}
           h={el.h}
           minWidth={el.type === "Balance" ? 255.45 : 40}
+          containerWidth={1248}
+          containerHeight={702}
           onClick={() => selectedElementData.set(el)}
           onUpdate={(updates) => updateElement(el.id, "desktop", updates)}
         >

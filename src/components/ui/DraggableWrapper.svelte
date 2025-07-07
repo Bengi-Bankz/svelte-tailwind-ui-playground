@@ -10,6 +10,8 @@
     export let onUpdate = () => {};
     export let minWidth = 40;
     export let minHeight = 40;
+    export let containerWidth = 800;
+    export let containerHeight = 600;
 
     let isDragging = false;
     let isResizing = false;
@@ -25,12 +27,20 @@
 
     function onMouseMove(e) {
         if (isDragging) {
-            x = e.clientX - offset.x;
-            y = e.clientY - offset.y;
+            const newX = e.clientX - offset.x;
+            const newY = e.clientY - offset.y;
+            
+            // Constrain within container bounds
+            x = Math.max(0, Math.min(containerWidth - w, newX));
+            y = Math.max(0, Math.min(containerHeight - h, newY));
         }
         if (isResizing) {
-            w = Math.max(minWidth, e.clientX - x);
-            h = Math.max(minHeight, e.clientY - y);
+            const newWidth = Math.max(minWidth, e.clientX - x);
+            const newHeight = Math.max(minHeight, e.clientY - y);
+            
+            // Constrain size within container bounds
+            w = Math.min(containerWidth - x, newWidth);
+            h = Math.min(containerHeight - y, newHeight);
         }
     }
 
