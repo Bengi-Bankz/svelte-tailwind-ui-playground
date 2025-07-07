@@ -26,20 +26,20 @@
         style="width: {w}px; height: {h}px;"
     >
         <div
-            class="flex flex-col justify-between h-full w-full text-white"
+            class="flex flex-col h-full w-full text-white"
             style="padding: {Math.max(
                 4,
                 Math.min(8, w * 0.05),
-            )}px; gap: {Math.max(4, h * 0.05)}px;"
+            )}px; gap: {Math.max(8, h * 0.1)}px;"
         >
             <!-- Balance Display -->
             <div
                 class="font-semibold flex-shrink-0"
-                style="font-size: {Math.max(8, Math.min(14, h * 0.1))}px;"
+                style="font-size: {Math.max(12, Math.min(24, h * 0.15))}px;"
             >
                 BALANCE: <span
                     class="font-bold"
-                    style="font-size: {Math.max(10, Math.min(16, h * 0.12))}px;"
+                    style="font-size: {Math.max(16, Math.min(32, h * 0.2))}px;"
                     >1234.56</span
                 >
             </div>

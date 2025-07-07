@@ -1,6 +1,8 @@
 <script>
     export let option = "option-1";
     export let isPortrait = true;
+    export let w = 120;
+    export let h = 120;
 
     const styles = {
         "option-1": {
@@ -27,26 +29,24 @@
 
     const btn = styles[option];
 
-    const mainSize = isPortrait
-        ? {
-              square: "w-16 h-16 text-sm",
-              circle: "w-16 h-16 text-sm",
-              rect: "w-28 h-10 text-xs",
-          }
-        : {
-              square: "w-24 h-24 text-lg",
-              circle: "w-24 h-24 text-lg",
-              rect: "w-44 h-14 text-lg",
-          };
+    // Responsive sizing based on component dimensions
+    $: buttonSize = Math.max(25, Math.min(50, Math.min(w * 0.15, h * 0.4)));
+    $: spinButtonWidth = Math.max(80, w * 0.5);
+    $: spinButtonHeight = Math.max(40, h * 0.5);
+    $: fontSize = Math.max(12, Math.min(20, h * 0.2));
+    $: smallFontSize = Math.max(10, Math.min(16, h * 0.15));
+    $: padding = Math.max(2, w * 0.01);
 </script>
 
 {#if btn}
     <div
-        class="flex items-center justify-center gap-2 p-2 max-w-full max-h-full"
+        class="flex items-center justify-center w-full h-full"
+        style="gap: {Math.max(4, w * 0.02)}px; padding: {padding}px;"
     >
         <!-- Minus Button -->
         <button
-            class="text-white bg-gray-700 w-10 h-10 rounded-full hover:bg-red-500 shrink-0 text-xl leading-none"
+            class="text-white bg-gray-700 rounded-full hover:bg-red-500 shrink-0 leading-none"
+            style="width: {buttonSize}px; height: {buttonSize}px; font-size: {fontSize}px;"
             aria-label="decrease"
         >
             −
@@ -54,20 +54,22 @@
 
         <!-- SPIN Button -->
         <div
-            class={`flex items-center justify-center font-bold text-white border-4 ${btn.class} ${mainSize[btn.shape]} ${
+            class={`flex items-center justify-center font-bold text-white border-4 ${btn.class} ${
                 btn.shape === "circle"
                     ? "rounded-full"
                     : btn.shape === "rect"
                       ? "rounded-xl"
                       : "rounded-md"
             }`}
+            style="width: {spinButtonWidth}px; height: {spinButtonHeight}px; font-size: {fontSize}px;"
         >
             SPIN
         </div>
 
         <!-- Plus Button -->
         <button
-            class="text-white bg-gray-700 w-10 h-10 rounded-full hover:bg-green-500 shrink-0 text-xl leading-none"
+            class="text-white bg-gray-700 rounded-full hover:bg-green-500 shrink-0 leading-none"
+            style="width: {buttonSize}px; height: {buttonSize}px; font-size: {fontSize}px;"
             aria-label="increase"
         >
             +
@@ -75,7 +77,8 @@
 
         <!-- Auto Button -->
         <button
-            class="text-yellow-200 bg-black w-10 h-10 rounded-full hover:bg-yellow-700 shrink-0 text-sm leading-none"
+            class="text-yellow-200 bg-black rounded-full hover:bg-yellow-700 shrink-0 leading-none border-2 border-white"
+            style="width: {buttonSize}px; height: {buttonSize}px; font-size: {smallFontSize}px;"
             aria-label="auto"
         >
             ♻
@@ -83,7 +86,8 @@
 
         <!-- Bonus Buy Button -->
         <button
-            class="text-pink-300 bg-black w-10 h-10 rounded-full hover:bg-pink-700 shrink-0 text-sm leading-none"
+            class="text-pink-300 bg-black rounded-full hover:bg-pink-700 shrink-0 leading-none border-2 border-white"
+            style="width: {buttonSize}px; height: {buttonSize}px; font-size: {smallFontSize}px;"
             aria-label="bonus"
         >
             ★
