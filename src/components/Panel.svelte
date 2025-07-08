@@ -1,6 +1,7 @@
 <script>
   import { placedElements } from "../lib/shared/placedElements";
   import { get, writable } from "svelte/store";
+  import { uiConfigStore } from "../lib/shared/uiConfigStore";
 
   import FrameVariant from "./FrameVariant.svelte";
   import MenuVariant from "./MenuVariant.svelte";
@@ -8,6 +9,7 @@
   import SpinButtonVariants from "./SpinButtonVariants.svelte";
   import WinModalVariant from "./WinModalVariant.svelte";
   import DraggableWrapper from "./ui/DraggableWrapper.svelte";
+  import SdkPreview from "./ui/SdkPreview.svelte";
 
   const elementTypes = ["Balance", "Menu", "Frame", "Spin", "WinModal"];
 
@@ -35,20 +37,18 @@
     WinModal: WinModalVariant,
   };
 
+  let showSDK = false;
+
+  // --- No changes below here except the scaling in the builder preview ---
   function handleAdd() {
     const current = get(placedElements);
     const view = current[selectedView];
 
     if (!view.some((el) => el.type === selectedElement)) {
-      // Get container dimensions based on selected view
       const containerWidth = selectedView === "mobile" ? 255.45 : 1248;
       const containerHeight = selectedView === "mobile" ? 553.8 : 702;
-
-      // Default dimensions
       const defaultWidth = 120;
       const defaultHeight = 120;
-
-      // Ensure initial position is within bounds
       const initialX = Math.min(100, containerWidth - defaultWidth);
       const initialY = Math.min(100, containerHeight - defaultHeight);
 
@@ -91,11 +91,9 @@
     const elementIndex = viewElements.findIndex((el) => el.id === id);
 
     if (elementIndex !== -1) {
-      // Get container dimensions based on view
       const containerWidth = view === "mobile" ? 255.45 : 1248;
       const containerHeight = view === "mobile" ? 553.8 : 702;
 
-      // Apply constraints to updates
       let constrainedUpdates = { ...updates };
 
       if (
@@ -128,142 +126,205 @@
       };
       placedElements.set({ ...current });
 
-      // Update selected element data if it's the one being modified
       if ($selectedElementData && $selectedElementData.id === id) {
         selectedElementData.set(viewElements[elementIndex]);
       }
     }
   }
+
+  function handleNext() {
+    uiConfigStore.set(get(placedElements));
+    showSDK = true;
+  }
+
+  // Scaling factor for builder preview
+  const DESKTOP_SCALE = 0.65;
+  const MOBILE_SCALE = 0.65;
 </script>
 
-<div class="flex flex-col items-center w-full">
-  <!-- TOP BAR -->
-  <div
-    class="flex gap-2 bg-gray-900 w-full px-4 py-3 text-white items-center justify-center"
-  >
-    <select bind:value={selectedElement} class="text-black px-2 py-1 rounded">
-      {#each elementTypes as type}
-        <option value={type}>{type}</option>
-      {/each}
-    </select>
-
-    <select bind:value={selectedOption} class="text-black px-2 py-1 rounded">
-      {#each variantOptions[selectedElement] as opt}
-        <option value={opt}>{opt}</option>
-      {/each}
-    </select>
-
-    <select bind:value={selectedView} class="text-black px-2 py-1 rounded">
-      <option value="mobile">Mobile</option>
-      <option value="desktop">Desktop</option>
-    </select>
-
-    <button
-      on:click={handleAdd}
-      class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
-    >
-      Add
-    </button>
-    <button
-      on:click={handleReset}
-      class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
-    >
-      Clear
-    </button>
-  </div>
-
-  <!-- SCALE NOTE -->
-  <div class="text-xs text-gray-400 mt-2 mb-4">
-    Preview scaled to <strong>65%</strong> — actual layout: 1280×720 desktop / 393×852
-    mobile
-  </div>
-
-  <!-- DISPLAY -->
-  <div class="flex justify-center gap-12 my-4">
-    <!-- MOBILE -->
+{#if !showSDK}
+  <div class="flex flex-col items-center w-full">
+    <!-- TOP BAR -->
     <div
-      class="relative border-4 border-white w-[255.45px] h-[553.8px] bg-black text-white text-center"
+      class="flex gap-2 bg-gray-900 w-full px-4 py-3 text-white items-center justify-center"
     >
-      <p class="absolute top-2 left-2 text-xs text-white/60">Mobile</p>
-      {#each $placedElements.mobile as el (el.id)}
-        <DraggableWrapper
-          id={el.id}
-          x={el.x}
-          y={el.y}
-          w={el.w}
-          h={el.h}
-          minWidth={el.type === "Balance" ? 255.45 : 40}
-          containerWidth={255.45}
-          containerHeight={553.8}
-          onClick={() => selectedElementData.set(el)}
-          onUpdate={(updates) => updateElement(el.id, "mobile", updates)}
-        >
-          <svelte:component
-            this={componentMap[el.type]}
-            option={el.option}
-            isPortrait={true}
-            w={el.w}
-            h={el.h}
-          />
-        </DraggableWrapper>
-      {/each}
+      <select bind:value={selectedElement} class="text-black px-2 py-1 rounded">
+        {#each elementTypes as type}
+          <option value={type}>{type}</option>
+        {/each}
+      </select>
+
+      <select bind:value={selectedOption} class="text-black px-2 py-1 rounded">
+        {#each variantOptions[selectedElement] as opt}
+          <option value={opt}>{opt}</option>
+        {/each}
+      </select>
+
+      <select bind:value={selectedView} class="text-black px-2 py-1 rounded">
+        <option value="mobile">Mobile</option>
+        <option value="desktop">Desktop</option>
+      </select>
+
+      <button
+        on:click={handleAdd}
+        class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
+      >
+        Add
+      </button>
+      <button
+        on:click={handleReset}
+        class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+      >
+        Clear
+      </button>
     </div>
 
-    <!-- DESKTOP -->
-    <div
-      class="relative border-4 border-white w-[1248px] h-[702px] bg-black text-white text-center"
+    <!-- SCALE NOTE -->
+    <div class="text-xs text-gray-400 mt-2 mb-4">
+      Preview scaled to <strong>65%</strong> — actual layout: 1920×1080 desktop /
+      393×852 mobile
+    </div>
+
+    <!-- DISPLAY -->
+    <div class="flex justify-center gap-12 my-4">
+      <!-- MOBILE -->
+      <div
+        class="relative border-4 border-white"
+        style="width:{255.45 * MOBILE_SCALE}px; height:{553.8 *
+          MOBILE_SCALE}px; background:black;"
+      >
+        <p class="absolute top-2 left-2 text-xs text-white/60">Mobile</p>
+        {#each $placedElements.mobile as el (el.id)}
+          <DraggableWrapper
+            id={el.id}
+            x={el.x * MOBILE_SCALE}
+            y={el.y * MOBILE_SCALE}
+            w={el.w * MOBILE_SCALE}
+            h={el.h * MOBILE_SCALE}
+            minWidth={el.type === "Balance" ? 255.45 * MOBILE_SCALE : 40}
+            containerWidth={255.45 * MOBILE_SCALE}
+            containerHeight={553.8 * MOBILE_SCALE}
+            onClick={() => selectedElementData.set(el)}
+            onUpdate={(updates) =>
+              // Undo the scaling when saving (convert back to 1:1)
+              updateElement(el.id, "mobile", {
+                ...updates,
+                x:
+                  updates.x !== undefined
+                    ? updates.x / MOBILE_SCALE
+                    : undefined,
+                y:
+                  updates.y !== undefined
+                    ? updates.y / MOBILE_SCALE
+                    : undefined,
+                w:
+                  updates.w !== undefined
+                    ? updates.w / MOBILE_SCALE
+                    : undefined,
+                h:
+                  updates.h !== undefined
+                    ? updates.h / MOBILE_SCALE
+                    : undefined,
+              })}
+          >
+            <svelte:component
+              this={componentMap[el.type]}
+              option={el.option}
+              isPortrait={true}
+              w={el.w * MOBILE_SCALE}
+              h={el.h * MOBILE_SCALE}
+            />
+          </DraggableWrapper>
+        {/each}
+      </div>
+
+      <!-- DESKTOP -->
+      <div
+        class="relative border-4 border-white"
+        style="width:{1248 * DESKTOP_SCALE}px; height:{702 *
+          DESKTOP_SCALE}px; background:black;"
+      >
+        <p class="absolute top-2 left-2 text-xs text-white/60">Desktop</p>
+        {#each $placedElements.desktop as el (el.id)}
+          <DraggableWrapper
+            id={el.id}
+            x={el.x * DESKTOP_SCALE}
+            y={el.y * DESKTOP_SCALE}
+            w={el.w * DESKTOP_SCALE}
+            h={el.h * DESKTOP_SCALE}
+            minWidth={el.type === "Balance" ? 255.45 * DESKTOP_SCALE : 40}
+            containerWidth={1248 * DESKTOP_SCALE}
+            containerHeight={702 * DESKTOP_SCALE}
+            onClick={() => selectedElementData.set(el)}
+            onUpdate={(updates) =>
+              // Undo the scaling when saving (convert back to 1:1)
+              updateElement(el.id, "desktop", {
+                ...updates,
+                x:
+                  updates.x !== undefined
+                    ? updates.x / DESKTOP_SCALE
+                    : undefined,
+                y:
+                  updates.y !== undefined
+                    ? updates.y / DESKTOP_SCALE
+                    : undefined,
+                w:
+                  updates.w !== undefined
+                    ? updates.w / DESKTOP_SCALE
+                    : undefined,
+                h:
+                  updates.h !== undefined
+                    ? updates.h / DESKTOP_SCALE
+                    : undefined,
+              })}
+          >
+            <svelte:component
+              this={componentMap[el.type]}
+              option={el.option}
+              isPortrait={false}
+              w={el.w * DESKTOP_SCALE}
+              h={el.h * DESKTOP_SCALE}
+            />
+          </DraggableWrapper>
+        {/each}
+      </div>
+    </div>
+
+    <!-- SNAPSHOT -->
+    <button
+      on:click={exportSnapshot}
+      class="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 mt-2 rounded shadow"
     >
-      <p class="absolute top-2 left-2 text-xs text-white/60">Desktop</p>
-      {#each $placedElements.desktop as el (el.id)}
-        <DraggableWrapper
-          id={el.id}
-          x={el.x}
-          y={el.y}
-          w={el.w}
-          h={el.h}
-          minWidth={el.type === "Balance" ? 255.45 : 40}
-          containerWidth={1248}
-          containerHeight={702}
-          onClick={() => selectedElementData.set(el)}
-          onUpdate={(updates) => updateElement(el.id, "desktop", updates)}
-        >
-          <svelte:component
-            this={componentMap[el.type]}
-            option={el.option}
-            isPortrait={false}
-            w={el.w}
-            h={el.h}
-          />
-        </DraggableWrapper>
-      {/each}
+      📤 Export Snapshot
+    </button>
+
+    <button
+      on:click={handleNext}
+      class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 mt-2 rounded shadow"
+    >
+      ➡️ Next: Load in SlotBox SDK
+    </button>
+
+    <!-- LOGS -->
+    <div
+      class="bg-black text-green-400 text-sm mt-6 w-5/6 p-4 border-t border-green-700 font-mono whitespace-pre overflow-auto max-h-[300px]"
+    >
+      Selected Element:
+      {#if $selectedElementData}
+        {JSON.stringify($selectedElementData, null, 2)}
+      {:else}
+        No element selected
+      {/if}
+
+      &#10;&#10;--- Mobile Elements ---&#10;
+      {#each $placedElements.mobile as el}
+        {JSON.stringify(el)}{/each}
+
+      &#10;--- Desktop Elements ---&#10;
+      {#each $placedElements.desktop as el}
+        {JSON.stringify(el)}{/each}
     </div>
   </div>
-
-  <!-- SNAPSHOT -->
-  <button
-    on:click={exportSnapshot}
-    class="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 mt-2 rounded shadow"
-  >
-    📤 Export Snapshot
-  </button>
-
-  <!-- LOGS -->
-  <div
-    class="bg-black text-green-400 text-sm mt-6 w-5/6 p-4 border-t border-green-700 font-mono whitespace-pre overflow-auto max-h-[300px]"
-  >
-    Selected Element:
-    {#if $selectedElementData}
-      {JSON.stringify($selectedElementData, null, 2)}
-    {:else}
-      No element selected
-    {/if}
-
-    &#10;&#10;--- Mobile Elements ---&#10;
-    {#each $placedElements.mobile as el}
-      {JSON.stringify(el)}{/each}
-
-    &#10;--- Desktop Elements ---&#10;
-    {#each $placedElements.desktop as el}
-      {JSON.stringify(el)}{/each}
-  </div>
-</div>
+{:else}
+  <SdkPreview elements={$uiConfigStore.desktop} />
+{/if}
