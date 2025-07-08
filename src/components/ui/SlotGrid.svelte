@@ -1,7 +1,7 @@
 <script>
   export let w = 120;
   export let h = 120;
-  export let reels = []; // Array of arrays: reels[reelIndex][symbolIndex]
+  export let reels = [];
   export let symbolsList = [];
   export let visibleCount = 3;
   const reelCount = 5;
@@ -20,9 +20,13 @@
       {#each reel as symbolIndex}
         <div
           class="flex items-center justify-center"
-          style="height: {symbolHeight}px; font-size: {symbolHeight * 0.7}px;"
+          style="height: {symbolHeight}px;"
         >
-          {symbolsList[symbolIndex]}
+          <img
+            src={symbolsList[symbolIndex]}
+            alt="symbol"
+            style="max-width: 85%; max-height: 85%; object-fit: contain;"
+          />
         </div>
       {/each}
     </div>

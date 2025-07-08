@@ -20,7 +20,14 @@
   let spinning = false;
   const REEL_COUNT = 5;
   const VISIBLE_COUNT = 3;
-  const SYMBOLS = ["🍒", "🍋", "🔔", "⭐", "💎", "7️⃣"];
+  // Use your uploaded images instead of emoji!
+  const SYMBOLS = [
+    "/upload1.png",
+    "/upload2.png",
+    "/upload3.png",
+    "/upload4.png",
+    "/upload5.png",
+  ];
 
   // Each reel is an array of symbol indexes
   let reels = Array(REEL_COUNT)
