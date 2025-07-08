@@ -45,8 +45,8 @@
     const view = current[selectedView];
 
     if (!view.some((el) => el.type === selectedElement)) {
-      const containerWidth = selectedView === "mobile" ? 255.45 : 1248;
-      const containerHeight = selectedView === "mobile" ? 553.8 : 702;
+      const containerWidth = selectedView === "mobile" ? 255.45 : 1920;
+      const containerHeight = selectedView === "mobile" ? 553.8 : 1080;
       const defaultWidth = 120;
       const defaultHeight = 120;
       const initialX = Math.min(100, containerWidth - defaultWidth);
@@ -91,8 +91,8 @@
     const elementIndex = viewElements.findIndex((el) => el.id === id);
 
     if (elementIndex !== -1) {
-      const containerWidth = view === "mobile" ? 255.45 : 1248;
-      const containerHeight = view === "mobile" ? 553.8 : 702;
+      const containerWidth = view === "mobile" ? 255.45 : 1920;
+      const containerHeight = view === "mobile" ? 553.8 : 1080;
 
       let constrainedUpdates = { ...updates };
 
@@ -241,9 +241,22 @@
       <!-- DESKTOP -->
       <div
         class="relative border-4 border-white"
-        style="width:{1248 * DESKTOP_SCALE}px; height:{702 *
+        style="width:{1920 * DESKTOP_SCALE}px; height:{1080 *
           DESKTOP_SCALE}px; background:black;"
       >
+        <!-- Red dotted line to indicate fold at scaled preview position (mock preview fold) -->
+        <div style="
+          position:absolute;
+          left:0; right:0;
+          top:{900 * DESKTOP_SCALE}px;
+          height:0;
+          border-bottom: 2px dotted red;
+          z-index:1000;
+          pointer-events:none;
+          opacity:0.7;
+        "
+          title="Fold line as seen in the 65% scaled builder preview"
+        ></div>
         <p class="absolute top-2 left-2 text-xs text-white/60">Desktop</p>
         {#each $placedElements.desktop as el (el.id)}
           <DraggableWrapper
@@ -253,8 +266,8 @@
             w={el.w * DESKTOP_SCALE}
             h={el.h * DESKTOP_SCALE}
             minWidth={el.type === "Balance" ? 255.45 * DESKTOP_SCALE : 40}
-            containerWidth={1248 * DESKTOP_SCALE}
-            containerHeight={702 * DESKTOP_SCALE}
+            containerWidth={1920 * DESKTOP_SCALE}
+            containerHeight={1080 * DESKTOP_SCALE}
             onClick={() => selectedElementData.set(el)}
             onUpdate={(updates) =>
               // Undo the scaling when saving (convert back to 1:1)

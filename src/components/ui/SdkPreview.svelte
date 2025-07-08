@@ -104,6 +104,18 @@
     class="sdk-canvas"
     style="width:1920px; height:1080px; position:relative;"
   >
+    <!-- Red dotted line to indicate fold (full size, e.g., 900px from top) -->
+    <div style="
+      position:absolute;
+      left:0; right:0;
+      top:900px;
+      height:0;
+      border-bottom: 2px dotted red;
+      z-index:1000;
+      pointer-events:none;
+    "
+      title="Anything below this line will be below the fold (not visible on first screenload)"
+    ></div>
     {#each elements as el (el.id)}
       {#if el.type === "Frame"}
         <div
