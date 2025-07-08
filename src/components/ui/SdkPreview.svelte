@@ -31,6 +31,12 @@
         .map(() => Math.floor(Math.random() * SYMBOLS.length)),
     );
 
+  // Balance/bet/game state
+  let balance = 1000.0;
+  let bet = 10.0;
+  let message = "";
+  $: disabled = spinning;
+
   // Find the Frame and SpinButton from placed elements
   $: frameEl = elements.find((el) => el.type === "Frame");
   $: spinButtonEl = elements.find((el) => el.type === "Spin");
@@ -41,8 +47,14 @@
 
   function triggerSpin() {
     if (spinning || !frameEl) return;
+    if (balance < bet) {
+      message = "Insufficient balance!";
+      return;
+    }
     spinning = true;
-    // For each reel, decide how many steps to spin
+    message = "";
+    balance = +(balance - bet).toFixed(2);
+
     let spinsLeft = Array(REEL_COUNT)
       .fill()
       .map((_, i) => 20 + Math.floor(Math.random() * 20) + i * 10);
@@ -59,10 +71,20 @@
         }
         return updated;
       });
-      reels = newReels; // triggers Svelte reactivity!
+      reels = newReels;
       if (stillSpinning) {
         setTimeout(animate, 60);
       } else {
+        // WIN LOGIC: All center symbols match pays 5x bet
+        const centerRow = reels.map((reel) => reel[1]);
+        const allEqual = centerRow.every((val) => val === centerRow[0]);
+        if (allEqual) {
+          const winAmount = +(bet * 5).toFixed(2);
+          balance = +(balance + winAmount).toFixed(2);
+          message = `WIN! You won ${winAmount}`;
+        } else {
+          message = "No win. Try again!";
+        }
         spinning = false;
       }
     }
@@ -116,6 +138,34 @@
             on:click={triggerSpin}
             disabled={spinning}
           />
+        </div>
+      {:else if el.type === "Balance"}
+        <div
+          style="
+            position:absolute;
+            left:{el.x}px; top:{el.y}px;
+            width:{el.w}px; height:{el.h}px;
+            z-index:10;
+          "
+        >
+          <BalanceBetBlock
+            option={el.option}
+            w={el.w}
+            h={el.h}
+            {balance}
+            {bet}
+            disabled={spinning}
+            on:betInput={(e) => (bet = +e.detail)}
+          />
+          <div
+            style="margin-top:4px; color:{message.startsWith('WIN')
+              ? '#0f0'
+              : message
+                ? '#f88'
+                : '#fff'};"
+          >
+            {message}
+          </div>
         </div>
       {:else}
         <div

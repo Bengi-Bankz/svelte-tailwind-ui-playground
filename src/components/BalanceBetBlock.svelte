@@ -1,23 +1,30 @@
 <script>
     export let option = "option-1";
     export let isPortrait = true;
-    export let value = "";
     export let w = 120;
     export let h = 120;
-    export let onInput = () => {};
+    export let balance = 0;
+    export let bet = "";
+    export let disabled = false;
 
+    import { createEventDispatcher } from "svelte";
     import { variantStyles } from "../lib/shared/variantStyles.js";
+    const dispatch = createEventDispatcher();
 
     const style = variantStyles[option];
 
-    const handleMultiplier = (type) => {
-        let current = parseFloat(value) || 0;
+    function setBet(val) {
+        dispatch("betInput", +val);
+    }
+
+    function handleMultiplier(type) {
+        let current = parseFloat(bet) || 0;
         if (type === "2x") current *= 2;
         if (type === "half") current /= 2;
-        if (type === "max") current = 9999;
-        value = current.toFixed(2);
-        onInput(value);
-    };
+        if (type === "max") current = Math.max(balance, 0);
+        current = Math.max(0, Math.floor(current * 100) / 100);
+        setBet(current);
+    }
 </script>
 
 {#if style}
@@ -40,7 +47,7 @@
                 BALANCE: <span
                     class="font-bold"
                     style="font-size: {Math.max(16, Math.min(32, h * 0.2))}px;"
-                    >1234.56</span
+                    >{balance.toFixed(2)}</span
                 >
             </div>
 
@@ -50,9 +57,11 @@
                 style="gap: {Math.max(4, w * 0.02)}px;"
             >
                 <input
-                    type="text"
-                    bind:value
-                    on:input={(e) => onInput(e.target.value)}
+                    type="number"
+                    min="1"
+                    step="1"
+                    bind:value={bet}
+                    on:input={(e) => setBet(e.target.value)}
                     class="flex-1 min-w-0 bg-black text-white text-center rounded border border-white focus:outline-none"
                     style="font-size: {Math.max(
                         8,
@@ -64,6 +73,7 @@
                         4,
                         w * 0.02,
                     )}px;"
+                    {disabled}
                 />
 
                 <!-- Buttons -->
@@ -80,7 +90,9 @@
                             4,
                             w * 0.02,
                         )}px;"
-                        on:click={() => handleMultiplier("2x")}>2x</button
+                        on:click={() => handleMultiplier("2x")}
+                        type="button"
+                        {disabled}>2x</button
                     >
                     <button
                         class="bg-gray-700 hover:bg-blue-600 text-white rounded"
@@ -94,7 +106,9 @@
                             4,
                             w * 0.02,
                         )}px;"
-                        on:click={() => handleMultiplier("half")}>½</button
+                        on:click={() => handleMultiplier("half")}
+                        type="button"
+                        {disabled}>½</button
                     >
                     <button
                         class="bg-gray-700 hover:bg-blue-600 text-white rounded"
@@ -108,7 +122,9 @@
                             4,
                             w * 0.02,
                         )}px;"
-                        on:click={() => handleMultiplier("max")}>Max</button
+                        on:click={() => handleMultiplier("max")}
+                        type="button"
+                        {disabled}>Max</button
                     >
                 </div>
             </div>
