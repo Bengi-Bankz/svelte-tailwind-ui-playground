@@ -21,11 +21,25 @@
     $: fontSize = Math.max(10, Math.min(24, h * 0.1));
     $: borderWidth = Math.max(2, Math.min(6, Math.min(w * 0.01, h * 0.01)));
     $: borderRadius = Math.max(8, Math.min(20, Math.min(w * 0.05, h * 0.05)));
+
+    // --- SLOT LOGIC ---
+    const reelCount = 5;
+    const gap = 2;
+    const totalGap = gap * (reelCount - 1);
+    $: reelWidth = (w - totalGap) / reelCount;
 </script>
 
 <div
-    class={`overflow-hidden ${styles[option]} flex items-center justify-center text-white font-bold border-solid`}
+    class={`overflow-hidden ${styles[option]} flex items-center justify-center text-white font-bold border-solid relative`}
     style="width: {w}px; height: {h}px; font-size: {fontSize}px; border-width: {borderWidth}px; border-radius: {borderRadius}px;"
 >
-    FRAME
+    <div class="absolute inset-0 flex" style="gap: {gap}px;">
+        {#each Array(reelCount) as _, i}
+            <div
+                class="reel-bg"
+                style="width: {reelWidth}px; height: 100%; background: rgba(255,255,255,0.05); border-radius: 4px;"
+            ></div>
+        {/each}
+    </div>
+    <span class="z-10">FRAME</span>
 </div>
